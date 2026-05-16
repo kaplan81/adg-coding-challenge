@@ -1,7 +1,39 @@
 <section class="prx-prescription-list">
-  <h1 class="prx-prescription-list__title">Prescriptions</h1>
-  <p class="prx-prescription-list__lead">
-    Placeholder remote view. The interactive table, search, filters, and paging will be
-    implemented in a later step.
-  </p>
+  <header class="prx-prescription-list__header">
+    <h1 class="prx-prescription-list__title">Prescriptions</h1>
+    <input
+      type="search"
+      class="prx-prescription-list__search"
+      [formControl]="searchControl"
+      placeholder="Search by medication or insurant name"
+      aria-label="Search prescriptions"
+    />
+  </header>
+
+  @if (pageResource.isLoading()) {
+    <p class="prx-prescription-list__status" role="status">Loading prescriptions…</p>
+  }
+
+  @if (pageResource.error()) {
+    <div class="prx-prescription-list__status prx-prescription-list__status--error" role="alert">
+      <span>Failed to load prescriptions.</span>
+      <button type="button" (click)="onReload()">Retry</button>
+    </div>
+  }
+
+  @if (pageResource.value(); as page) {
+    <prx-prescription-table
+      [items]="page.items"
+      [sort]="sort()"
+      (sortChange)="onSortChange($event)"
+    />
+
+    <prx-prescription-pager
+      [page]="page.page"
+      [pageSize]="page.pageSize"
+      [total]="page.total"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  }
 </section>

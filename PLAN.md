@@ -199,7 +199,7 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 - [x] Step 2 — Scaffold `shell` host project
 - [x] Step 3 — Scaffold `prescription` remote project
 - [x] Step 4 — Wire Native Federation on both apps
-- [ ] Step 5 — Build the prescription feature (UI + state)
+- [x] Step 5 — Build the prescription feature (UI + state)
 - [ ] Step 6 — In-memory HTTP mock
 - [ ] Step 7 — Tests
 - [ ] Step 8 — README and architectural notes

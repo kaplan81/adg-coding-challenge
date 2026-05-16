@@ -1,0 +1,38 @@
+<nav class="prx-prescription-pager" aria-label="Prescriptions pagination">
+  <span class="prx-prescription-pager__summary">
+    {{ rangeStart() }}–{{ rangeEnd() }} of {{ total() }}
+  </span>
+
+  <div class="prx-prescription-pager__controls">
+    <label class="prx-prescription-pager__page-size">
+      <span>Rows per page</span>
+      <select [value]="pageSize()" (change)="onPageSizeChange($event)">
+        @for (option of pageSizeOptions; track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+    </label>
+
+    <button
+      type="button"
+      class="prx-prescription-pager__button"
+      [disabled]="!canGoPrev()"
+      (click)="onPrev()"
+    >
+      Previous
+    </button>
+
+    <span class="prx-prescription-pager__page-indicator">
+      Page {{ page() }} / {{ totalPages() }}
+    </span>
+
+    <button
+      type="button"
+      class="prx-prescription-pager__button"
+      [disabled]="!canGoNext()"
+      (click)="onNext()"
+    >
+      Next
+    </button>
+  </div>
+</nav>

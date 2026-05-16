@@ -1,0 +1,45 @@
+<div class="prx-prescription-table" role="region" aria-label="Prescriptions">
+  <table class="prx-prescription-table__table">
+    <thead>
+      <tr>
+        @for (column of columns; track column.field) {
+          <th
+            scope="col"
+            class="prx-prescription-table__header"
+            [class.prx-prescription-table__header--asc]="directionFor(column.field) === 'asc'"
+            [class.prx-prescription-table__header--desc]="directionFor(column.field) === 'desc'"
+            [attr.aria-sort]="ariaSortFor(column.field)"
+          >
+            <button
+              type="button"
+              class="prx-prescription-table__header-button"
+              (click)="onHeaderClick(column.field)"
+            >
+              <span>{{ column.label }}</span>
+              @if (directionFor(column.field) === 'asc') {
+                <span aria-hidden="true">▲</span>
+              } @else if (directionFor(column.field) === 'desc') {
+                <span aria-hidden="true">▼</span>
+              }
+            </button>
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items(); track item.id) {
+        <tr>
+          <td>{{ item.medicationName }}</td>
+          <td>{{ item.insurantName }}</td>
+          <td>{{ item.insurantBirthDate | date: 'mediumDate' }}</td>
+          <td>{{ item.insurantId }}</td>
+          <td>{{ item.prescriptionDate | date: 'mediumDate' }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="prx-prescription-table__empty">No prescriptions match your search.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

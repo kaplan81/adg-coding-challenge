@@ -34,6 +34,12 @@
     },
     {
       "path": "./projects/shell/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/prescription/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/prescription/tsconfig.spec.json"
     }
   ]
 }

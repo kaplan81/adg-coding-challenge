@@ -197,7 +197,7 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 - [x] Step 0 — Author `PLAN.md`
 - [x] Step 1 — Workspace prep & dependencies
 - [x] Step 2 — Scaffold `shell` host project
-- [ ] Step 3 — Scaffold `prescription` remote project
+- [x] Step 3 — Scaffold `prescription` remote project
 - [ ] Step 4 — Wire Native Federation on both apps
 - [ ] Step 5 — Build the prescription feature (UI + state)
 - [ ] Step 6 — In-memory HTTP mock

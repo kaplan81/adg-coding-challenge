@@ -1,0 +1,16 @@
+.prx-prescription-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.prx-prescription-list__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.prx-prescription-list__lead {
+  margin: 0;
+  color: #6b7280;
+  font-style: italic;
+}

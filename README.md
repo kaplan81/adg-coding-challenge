@@ -33,7 +33,3 @@ Two independently buildable Angular applications share **no build-time imports**
 - **[ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md)** — chosen approach, Native Federation rationale (including the ESM-vs-MF clarification informed by [Zephyr Cloud's "Module Federation vs Native ESM"](https://zephyr-cloud.io/blog/module-federation-vs-native-esm)), and the trade-offs table.
 - **[PLAN.md](PLAN.md)** — the eight-step implementation plan with progress checklist; mirrors the commit history.
 - **[SUMMARY.md](SUMMARY.md)** — full architectural and implementation walkthrough: boundaries between shell and remote, mock backend contract, route-scoped DI rationale, testing layering, incremental migration narrative, known limitations, and use of AI tooling.
-
-## Use of AI tooling
-
-Implementation was done in pair-programming style with Cursor's Claude Opus 4.7 agent, under explicit per-step approval and human-driven commits. Architectural decisions were proposed by the AI and ratified by the human; recovery from tooling friction (a hung schematic, peer-dep conflicts) was AI-driven; commits and final review were human. Full breakdown in [SUMMARY.md](SUMMARY.md#use-of-ai-tooling-per-spec).

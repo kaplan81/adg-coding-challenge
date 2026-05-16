@@ -81,7 +81,7 @@ interface Prescription {
   insurantName: string;
   insurantBirthDate: string; // ISO date
   insurantId: string;
-  prescriptionDate: string;  // ISO date
+  prescriptionDate: string; // ISO date
 }
 ```
 

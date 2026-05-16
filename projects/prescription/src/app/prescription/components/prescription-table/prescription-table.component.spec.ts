@@ -36,8 +36,8 @@ describe('PrescriptionTableComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    const labels = Array.from(compiled.querySelectorAll('th button span:first-child')).map(
-      (el) => el.textContent?.trim(),
+    const labels = Array.from(compiled.querySelectorAll('th button span:first-child')).map((el) =>
+      el.textContent?.trim(),
     );
     expect(labels).toEqual([
       'Medication name',

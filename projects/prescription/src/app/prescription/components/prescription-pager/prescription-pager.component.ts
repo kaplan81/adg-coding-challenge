@@ -17,9 +17,7 @@ export class PrescriptionPagerComponent {
   pageSizeChange = output<number>();
   pageSizeOptionValues = PrescriptionPagerComponent.pageSizes;
   rangeEnd = computed(() => Math.min(this.page() * this.pageSize(), this.total()));
-  rangeStart = computed(() =>
-    this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1,
-  );
+  rangeStart = computed(() => (this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1));
   total = input.required<number>();
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
 

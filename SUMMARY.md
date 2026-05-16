@@ -77,7 +77,7 @@ projects/
 Per [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md), the federation mechanism is **`@angular-architects/native-federation`** — the deliberate, primary choice, not a fallback or compromise. It is the federation runtime that fits cleanly inside the Angular CLI's default `@angular/build:application` (esbuild) pipeline, and it implements the same federation contract classic Module Federation popularized: singleton-aware shared dependencies, semver-based version negotiation, runtime composition, and a manifest-driven preload graph. The full reasoning lives in [`ACCEPTANCE_CRITERIA.md`](ACCEPTANCE_CRITERIA.md) (informed by the [Zephyr Cloud "Module Federation vs Native ESM"](https://zephyr-cloud.io/blog/module-federation-vs-native-esm) article); the short version:
 
 - **Native Federation implements the federation contract on top of ESM/import-map transport.** Singleton enforcement (`shareAll({ singleton: true, strictVersion: true })`), semver negotiation, dynamic `loadRemoteModule(...)`, and a `remoteEntry.json` + `importmap.json` manifest pair the host uses to fetch shared chunks in parallel — the same federation primitives a classic Webpack/Rspack runtime exposes, just produced as standards-aligned ESM artefacts.
-- **Pure ESM + import maps without a federation runtime is not a viable substitute** at this scope. Standards solve the *loading* problem; they do not solve singleton enforcement, semver negotiation, dynamic registration, or coordinated error recovery. For a micro-frontend topology that crosses team boundaries, the management layer is what makes the runtime survive contact with reality.
+- **Pure ESM + import maps without a federation runtime is not a viable substitute** at this scope. Standards solve the _loading_ problem; they do not solve singleton enforcement, semver negotiation, dynamic registration, or coordinated error recovery. For a micro-frontend topology that crosses team boundaries, the management layer is what makes the runtime survive contact with reality.
 - **Classic Webpack/Rspack Module Federation is the right call only when a team needs bundler-runtime capabilities not yet exposed by Native Federation** (programmatic remote unload, layered singletons across breaking major versions, the wider loader-hook ecosystem) **and** is prepared to take ownership of a non-default bundler stack. None of those constraints apply to this challenge — single Angular 21 monorepo, single major version, single remote, no long-lived multi-tab shell. Reaching for classic MF here would import operational risk for capabilities the demo would not exercise.
 
 The exposed `remoteEntry.json` and `importmap.json` artifacts (visible in `dist/prescription/browser/`) make the manifest layer concrete; the host requests shared chunks from the remote in parallel rather than via a depth-driven import waterfall. If a future product need ever requires the wider classic-MF runtime surface, the documented [combining-Native-and-Module-Federation pattern](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/) keeps it reachable from the architecture chosen here.
@@ -137,12 +137,12 @@ interface PrescriptionPage {
 }
 
 interface Prescription {
-  id: string;                  // RX-00001 ... RX-00150
+  id: string; // RX-00001 ... RX-00150
   medicationName: string;
   insurantName: string;
-  insurantBirthDate: string;   // ISO date
-  insurantId: string;          // A100000000 ... A101000043
-  prescriptionDate: string;    // ISO date
+  insurantBirthDate: string; // ISO date
+  insurantId: string; // A100000000 ... A101000043
+  prescriptionDate: string; // ISO date
 }
 ```
 
@@ -246,7 +246,7 @@ This stack is designed to support a phased extraction from a hypothetical Angula
 3. **Wrap it as a Native Federation remote.** `ng add @angular-architects/native-federation --type remote` (or, when the schematic is uncooperative as it was here, write `federation.config.js` + `bootstrap.ts` + the `main.ts` indirection by hand using the host's output as a reference).
 4. **Add a feature flag in the monolith's router.** Behind the flag, `loadChildren: () => import('./feature/...')` (local, today). With the flag on, `loadChildren: () => loadRemoteModule(...).then(m => m.routes)` (federated, after rollout). Same route, same URL, same UX. The flag is the kill switch.
 5. **Move the data layer into the remote with route-scoped DI.** Same pattern shown in `prescription.routes.ts` here: `Route.providers: [PrescriptionService, provideHttpClient(...)]`. The host loses an `HttpClient` provider for that subtree; the remote brings its own, including any feature-specific interceptors (auth, telemetry, error mapping, mock backends in dev). This is the single most important step for keeping the host injector clean during migration.
-6. **Repeat per team.** Each new remote follows the same template. Cross-cutting concerns that *do* belong globally (auth tokens, design system, telemetry SDK) stay in the shell or move to a small shared library; everything else is owned by the remote that owns the feature.
+6. **Repeat per team.** Each new remote follows the same template. Cross-cutting concerns that _do_ belong globally (auth tokens, design system, telemetry SDK) stay in the shell or move to a small shared library; everything else is owned by the remote that owns the feature.
 
 What this avoids:
 

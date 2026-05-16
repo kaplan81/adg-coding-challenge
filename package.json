@@ -26,6 +26,8 @@
     "@angular/forms": "^21.2.3",
     "@angular/platform-browser": "^21.2.3",
     "@angular/router": "^21.2.3",
+    "@softarc/native-federation-node": "^3.3.4",
+    "es-module-shims": "^1.5.12",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

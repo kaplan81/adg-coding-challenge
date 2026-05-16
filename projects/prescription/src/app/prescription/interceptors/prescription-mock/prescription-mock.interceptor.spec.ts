@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
 import { PRESCRIPTIONS_SEED } from '../../mocks/prescriptions-seed.mock';
-import type { PrescriptionPage } from '../../models/prescription-page.model';
+import type { PrescriptionPage } from '../../models/prescription.model';
 import { prescriptionMockInterceptor } from './prescription-mock.interceptor';
 
 const ENDPOINT = '/api/prescriptions';

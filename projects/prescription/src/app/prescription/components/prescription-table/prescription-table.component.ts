@@ -1,14 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
+import type { PrescriptionSortDirectionET } from '../../enums/prescription-sort-direction.enum';
+import type { PrescriptionSortFieldET } from '../../enums/prescription-sort-field.enum';
+import type { PrescriptionSort } from '../../models/prescription-query.model';
 import type { Prescription } from '../../models/prescription.model';
-import type {
-  PrescriptionSort,
-  PrescriptionSortDirection,
-  PrescriptionSortField,
-} from '../../models/prescription-query.model';
-
-import { PRESCRIPTION_TABLE_COLUMNS } from '../../models/prescription-table-columns.model';
 
 @Component({
   selector: 'prx-prescription-table',
@@ -18,14 +14,24 @@ import { PRESCRIPTION_TABLE_COLUMNS } from '../../models/prescription-table-colu
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrescriptionTableComponent {
-  static readonly tableColumns = PRESCRIPTION_TABLE_COLUMNS;
+  static readonly tableColumns: ReadonlyArray<{
+    field: PrescriptionSortFieldET;
+    label: string;
+    type: 'text' | 'date';
+  }> = [
+    { field: 'medicationName', label: 'Medication name', type: 'text' },
+    { field: 'insurantName', label: 'Insurant name', type: 'text' },
+    { field: 'insurantBirthDate', label: 'Insurant birth date', type: 'date' },
+    { field: 'insurantId', label: 'Insurant id', type: 'text' },
+    { field: 'prescriptionDate', label: 'Prescription date', type: 'date' },
+  ];
 
   columns = PrescriptionTableComponent.tableColumns;
   items = input.required<ReadonlyArray<Prescription>>();
   sort = input<PrescriptionSort | null>(null);
   sortChange = output<PrescriptionSort | null>();
 
-  ariaSortFor(field: PrescriptionSortField): 'ascending' | 'descending' | 'none' {
+  ariaSortFor(field: PrescriptionSortFieldET): 'ascending' | 'descending' | 'none' {
     const direction = this.directionFor(field);
     if (direction === 'asc') {
       return 'ascending';
@@ -36,7 +42,7 @@ export class PrescriptionTableComponent {
     return 'none';
   }
 
-  directionFor(field: PrescriptionSortField): PrescriptionSortDirection | null {
+  directionFor(field: PrescriptionSortFieldET): PrescriptionSortDirectionET | null {
     const current = this.sort();
     if (!current || current.field !== field) {
       return null;
@@ -44,7 +50,7 @@ export class PrescriptionTableComponent {
     return current.direction;
   }
 
-  onHeaderClick(field: PrescriptionSortField): void {
+  onHeaderClick(field: PrescriptionSortFieldET): void {
     const current = this.sort();
     if (!current || current.field !== field) {
       this.sortChange.emit({ field, direction: 'asc' });

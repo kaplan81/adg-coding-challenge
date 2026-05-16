@@ -68,13 +68,6 @@ Single endpoint `GET /api/prescriptions` with query params:
 Response shape:
 
 ```ts
-interface PrescriptionPage {
-  items: Prescription[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 interface Prescription {
   id: string;
   medicationName: string;
@@ -82,6 +75,13 @@ interface Prescription {
   insurantBirthDate: string; // ISO date
   insurantId: string;
   prescriptionDate: string; // ISO date
+}
+
+interface PrescriptionPage {
+  items: Prescription[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 ```
 
@@ -144,7 +144,8 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 
 ### Step 5 — Build the prescription feature (UI + state)
 
-- Models: `prescription.model.ts`, `prescription-query.model.ts`, `prescription-page.model.ts`, `prescription-table-columns.model.ts` under `src/app/prescription/models/`.
+- Models: `prescription.model.ts` (entity + `PrescriptionPage`), `prescription-query.model.ts` under `src/app/prescription/models/`.
+- Enums (numeric `enum` + `*ET` types, same pattern as `projects/sample/.../html-tag.enum.ts`): `prescription-sort-field.enum.ts`, `prescription-sort-direction.enum.ts` under `src/app/prescription/enums/`.
 - `PrescriptionService` (`providedIn: 'root'`) with `inject(HttpClient)` and a single `search(query): Observable<PrescriptionPage>`.
 - `PrescriptionListContainer` — owns signals for query state, computed `loading`/`error`, ReactiveForm for search/filters, pagination controls. Uses `toSignal()` over service results.
 - Presentational components:

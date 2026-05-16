@@ -68,6 +68,9 @@ projects/
           interceptors/prescription-mock/
             prescription-mock.interceptor.ts
           mocks/prescriptions-seed.mock.ts
+          enums/
+            prescription-sort-direction.enum.ts
+            prescription-sort-field.enum.ts
           models/
   @scope/schematics/       (untouched)
 ```
@@ -131,13 +134,6 @@ Sortable fields: `medicationName`, `insurantName`, `insurantBirthDate`, `insuran
 Response shape:
 
 ```ts
-interface PrescriptionPage {
-  items: ReadonlyArray<Prescription>;
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 interface Prescription {
   id: string; // RX-00001 ... RX-00150
   medicationName: string;
@@ -145,6 +141,13 @@ interface Prescription {
   insurantBirthDate: string; // ISO date
   insurantId: string; // A100000000 ... A101000043
   prescriptionDate: string; // ISO date
+}
+
+interface PrescriptionPage {
+  items: ReadonlyArray<Prescription>;
+  total: number;
+  page: number;
+  pageSize: number;
 }
 ```
 

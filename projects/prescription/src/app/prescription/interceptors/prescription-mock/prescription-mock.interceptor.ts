@@ -2,8 +2,7 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import type { Prescription } from '../../models/prescription.model';
-import type { PrescriptionPage } from '../../models/prescription-page.model';
+import type { Prescription, PrescriptionPage } from '../../models/prescription.model';
 import type { PrescriptionSort } from '../../models/prescription-query.model';
 import { PRESCRIPTIONS_SEED } from '../../mocks/prescriptions-seed.mock';
 

@@ -1,15 +1,9 @@
-export type PrescriptionSortField =
-  | 'medicationName'
-  | 'insurantName'
-  | 'insurantBirthDate'
-  | 'insurantId'
-  | 'prescriptionDate';
-
-export type PrescriptionSortDirection = 'asc' | 'desc';
+import type { PrescriptionSortDirectionET } from '../enums/prescription-sort-direction.enum';
+import type { PrescriptionSortFieldET } from '../enums/prescription-sort-field.enum';
 
 export interface PrescriptionSort {
-  field: PrescriptionSortField;
-  direction: PrescriptionSortDirection;
+  field: PrescriptionSortFieldET;
+  direction: PrescriptionSortDirectionET;
 }
 
 export interface PrescriptionQuery {

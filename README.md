@@ -14,13 +14,23 @@ npm run start:shell             # http://localhost:4200  (composes /prescription
 
 Open `http://localhost:4200/prescriptions` to see the federated view. Open `http://localhost:4201/` to see the same view rendered standalone (useful for isolated remote development).
 
+## Screenshots
+
+Shell welcome page (`/home`) with navigation to the federated Prescriptions feature:
+
+![ADG Shell home welcome page](img/Screenshot%202026-05-16%20at%2017.58.45.png)
+
+Prescriptions view (`/prescriptions`) with search, sortable table, and paging. Chrome DevTools shows `Routes.js` served from the prescription remote (`localhost:4201`).
+
+![ADG Shell prescriptions list](img/Screenshot%202026-05-16%20at%2017.59.54.png)
+
 ## Other commands
 
 ```bash
 npm run build:shell             # production build
 npm run build:prescription      # production build
 npm test                        # 10 spec files / 37 specs (Vitest)
-npm run test:file -- <path>     # focused run
+make test <path>     # focused run
 ```
 
 ## Architecture in one paragraph

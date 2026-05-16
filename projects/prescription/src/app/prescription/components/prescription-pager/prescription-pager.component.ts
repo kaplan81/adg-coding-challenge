@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
-const PAGE_SIZE_OPTIONS: ReadonlyArray<number> = [10, 25, 50];
-
 @Component({
   selector: 'prx-prescription-pager',
   templateUrl: './prescription-pager.component.html',
@@ -9,42 +7,36 @@ const PAGE_SIZE_OPTIONS: ReadonlyArray<number> = [10, 25, 50];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrescriptionPagerComponent {
-  readonly page = input.required<number>();
-  readonly pageSize = input.required<number>();
-  readonly total = input.required<number>();
+  static readonly pageSizes: ReadonlyArray<number> = [10, 25, 50];
 
-  readonly pageChange = output<number>();
-  readonly pageSizeChange = output<number>();
-
-  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
-
-  protected readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.total() / this.pageSize())),
-  );
-  protected readonly canGoPrev = computed(() => this.page() > 1);
-  protected readonly canGoNext = computed(() => this.page() < this.totalPages());
-
-  protected readonly rangeStart = computed(() =>
+  canGoNext = computed(() => this.page() < this.totalPages());
+  canGoPrev = computed(() => this.page() > 1);
+  page = input.required<number>();
+  pageChange = output<number>();
+  pageSize = input.required<number>();
+  pageSizeChange = output<number>();
+  pageSizeOptionValues = PrescriptionPagerComponent.pageSizes;
+  rangeEnd = computed(() => Math.min(this.page() * this.pageSize(), this.total()));
+  rangeStart = computed(() =>
     this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1,
   );
-  protected readonly rangeEnd = computed(() =>
-    Math.min(this.page() * this.pageSize(), this.total()),
-  );
+  total = input.required<number>();
+  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
 
-  protected onPrev(): void {
-    if (this.canGoPrev()) {
-      this.pageChange.emit(this.page() - 1);
-    }
-  }
-
-  protected onNext(): void {
+  onNext(): void {
     if (this.canGoNext()) {
       this.pageChange.emit(this.page() + 1);
     }
   }
 
-  protected onPageSizeChange(event: Event): void {
+  onPageSizeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     this.pageSizeChange.emit(Number(target.value));
+  }
+
+  onPrev(): void {
+    if (this.canGoPrev()) {
+      this.pageChange.emit(this.page() - 1);
+    }
   }
 }

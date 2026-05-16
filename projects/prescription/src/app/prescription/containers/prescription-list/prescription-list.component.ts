@@ -2,12 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   resource,
   signal,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -31,54 +32,52 @@ const DEFAULT_PAGE_SIZE = 10;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrescriptionListComponent {
-  private readonly service = inject(PrescriptionService);
-
-  protected readonly searchControl = new FormControl('', { nonNullable: true });
-
-  protected readonly page = signal(1);
-  protected readonly pageSize = signal(DEFAULT_PAGE_SIZE);
-  protected readonly sort = signal<PrescriptionSort | null>(DEFAULT_SORT);
-  private readonly searchTerm = signal('');
-
-  private readonly query = computed<PrescriptionQuery>(() => {
+  #destroyRef = inject(DestroyRef);
+  #query = computed<PrescriptionQuery>(() => {
     const sort = this.sort();
     return {
-      q: this.searchTerm() || undefined,
+      q: this.#searchTerm() || undefined,
       page: this.page(),
       pageSize: this.pageSize(),
       sort: sort ?? undefined,
     };
   });
+  #searchTerm = signal('');
+  #service = inject(PrescriptionService);
 
-  protected readonly pageResource = resource({
-    params: () => this.query(),
-    loader: ({ params }) => firstValueFrom(this.service.search(params)),
+  page = signal(1);
+  pageResource = resource({
+    params: () => this.#query(),
+    loader: ({ params }) => firstValueFrom(this.#service.search(params)),
   });
+  pageSize = signal(DEFAULT_PAGE_SIZE);
+  searchControl = new FormControl('', { nonNullable: true });
+  sort = signal<PrescriptionSort | null>(DEFAULT_SORT);
 
   constructor() {
     this.searchControl.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed(this.#destroyRef))
       .subscribe((value) => {
-        this.searchTerm.set(value ?? '');
+        this.#searchTerm.set(value ?? '');
         this.page.set(1);
       });
   }
 
-  protected onSortChange(sort: PrescriptionSort | null): void {
-    this.sort.set(sort);
+  onPageChange(pageIndex: number): void {
+    this.page.set(pageIndex);
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
     this.page.set(1);
   }
 
-  protected onPageChange(page: number): void {
-    this.page.set(page);
-  }
-
-  protected onPageSizeChange(pageSize: number): void {
-    this.pageSize.set(pageSize);
-    this.page.set(1);
-  }
-
-  protected onReload(): void {
+  onReload(): void {
     this.pageResource.reload();
+  }
+
+  onSortChange(nextSort: PrescriptionSort | null): void {
+    this.sort.set(nextSort);
+    this.page.set(1);
   }
 }

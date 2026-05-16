@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import type { Prescription } from '../../models/prescription.model';
 import type {
@@ -8,19 +8,7 @@ import type {
   PrescriptionSortField,
 } from '../../models/prescription-query.model';
 
-interface ColumnDef {
-  readonly field: PrescriptionSortField;
-  readonly label: string;
-  readonly type: 'text' | 'date';
-}
-
-const COLUMNS: ReadonlyArray<ColumnDef> = [
-  { field: 'medicationName', label: 'Medication name', type: 'text' },
-  { field: 'insurantName', label: 'Insurant name', type: 'text' },
-  { field: 'insurantBirthDate', label: 'Insurant birth date', type: 'date' },
-  { field: 'insurantId', label: 'Insurant id', type: 'text' },
-  { field: 'prescriptionDate', label: 'Prescription date', type: 'date' },
-];
+import { PRESCRIPTION_TABLE_COLUMNS } from './prescription-table-columns.model';
 
 @Component({
   selector: 'prx-prescription-table',
@@ -30,22 +18,14 @@ const COLUMNS: ReadonlyArray<ColumnDef> = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrescriptionTableComponent {
-  readonly items = input.required<ReadonlyArray<Prescription>>();
-  readonly sort = input<PrescriptionSort | null>(null);
+  static readonly tableColumns = PRESCRIPTION_TABLE_COLUMNS;
 
-  readonly sortChange = output<PrescriptionSort | null>();
+  columns = PrescriptionTableComponent.tableColumns;
+  items = input.required<ReadonlyArray<Prescription>>();
+  sort = input<PrescriptionSort | null>(null);
+  sortChange = output<PrescriptionSort | null>();
 
-  protected readonly columns = COLUMNS;
-
-  protected directionFor(field: PrescriptionSortField): PrescriptionSortDirection | null {
-    const current = this.sort();
-    if (!current || current.field !== field) {
-      return null;
-    }
-    return current.direction;
-  }
-
-  protected ariaSortFor(field: PrescriptionSortField): 'ascending' | 'descending' | 'none' {
+  ariaSortFor(field: PrescriptionSortField): 'ascending' | 'descending' | 'none' {
     const direction = this.directionFor(field);
     if (direction === 'asc') {
       return 'ascending';
@@ -56,7 +36,15 @@ export class PrescriptionTableComponent {
     return 'none';
   }
 
-  protected onHeaderClick(field: PrescriptionSortField): void {
+  directionFor(field: PrescriptionSortField): PrescriptionSortDirection | null {
+    const current = this.sort();
+    if (!current || current.field !== field) {
+      return null;
+    }
+    return current.direction;
+  }
+
+  onHeaderClick(field: PrescriptionSortField): void {
     const current = this.sort();
     if (!current || current.field !== field) {
       this.sortChange.emit({ field, direction: 'asc' });
@@ -67,9 +55,5 @@ export class PrescriptionTableComponent {
       return;
     }
     this.sortChange.emit(null);
-  }
-
-  protected trackById(_index: number, item: Prescription): string {
-    return item.id;
   }
 }

@@ -1,8 +1,8 @@
 export interface Prescription {
-  readonly id: string;
-  readonly medicationName: string;
-  readonly insurantName: string;
-  readonly insurantBirthDate: string;
-  readonly insurantId: string;
-  readonly prescriptionDate: string;
+  id: string;
+  medicationName: string;
+  insurantName: string;
+  insurantBirthDate: string;
+  insurantId: string;
+  prescriptionDate: string;
 }

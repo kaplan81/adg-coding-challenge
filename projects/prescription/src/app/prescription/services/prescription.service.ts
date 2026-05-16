@@ -9,7 +9,7 @@ const ENDPOINT = '/api/prescriptions';
 
 @Injectable()
 export class PrescriptionService {
-  private readonly http = inject(HttpClient);
+  #http = inject(HttpClient);
 
   search(query: PrescriptionQuery): Observable<PrescriptionPage> {
     let params = new HttpParams()
@@ -29,6 +29,6 @@ export class PrescriptionService {
       params = params.set('sort', `${query.sort.field}:${query.sort.direction}`);
     }
 
-    return this.http.get<PrescriptionPage>(ENDPOINT, { params });
+    return this.#http.get<PrescriptionPage>(ENDPOINT, { params });
   }
 }

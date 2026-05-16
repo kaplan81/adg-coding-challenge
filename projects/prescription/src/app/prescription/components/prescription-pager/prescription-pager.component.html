@@ -7,7 +7,7 @@
     <label class="prx-prescription-pager__page-size">
       <span>Rows per page</span>
       <select [value]="pageSize()" (change)="onPageSizeChange($event)">
-        @for (option of pageSizeOptions; track option) {
+        @for (option of pageSizeOptionValues; track option) {
           <option [value]="option">{{ option }}</option>
         }
       </select>

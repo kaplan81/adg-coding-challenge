@@ -168,18 +168,20 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 - Integration test in the shell: a Vitest test that imports the shell `routes` and asserts the `/prescriptions` route is configured to call `loadRemoteModule` with `remoteName: 'prescription'` (no actual network).
 - Document e2e strategy in README (Playwright per app + a thin shell↔remote contract test) without implementing e2e in this delivery to respect the time-box.
 
-### Step 8 — README and architectural notes
+### Step 8 — README, SUMMARY, and architectural notes
 
-- Update root `README.md` with:
+- Author the long-form `SUMMARY.md` at the repo root with:
   - One-paragraph architecture summary + the mermaid diagram from this plan.
-  - How to run independently: `npm run start:shell`, `npm run start:prescription`, default ports, what `remoteEntry.json` is.
-  - Federation choice (Native Federation) and trade-offs vs classic Module Federation, citing [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md).
+  - Repository layout and how to run each app independently (`npm run start:shell`, `npm run start:prescription`, default ports, what `remoteEntry.json` is).
+  - Federation choice (Native Federation) and trade-offs vs classic Module Federation and vs raw ESM + import maps, cross-referencing [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md).
   - Boundaries: shell owns layout/nav/manifest; remote owns its feature, types, and mock data; no shared library.
-  - Mock backend contract and rationale for an in-Angular interceptor.
-  - Testing strategy (unit, integration, e2e) and how the remote is testable in isolation.
-  - Incremental migration narrative: extract a leaf feature first (read-only, low cross-cutting deps) → publish as remote → flip the host route from local `loadChildren` to `loadRemoteModule` behind a feature flag → repeat per team.
-  - Brief "AI tooling usage" note as required by SPEC.
-- Keep `ACCEPTANCE_CRITERIA.md` and `SPEC.md` untouched.
+  - Mock backend contract and the rationale for **route-scoped DI** of the interceptor (so the mock works in both standalone and federated modes without coupling the shell to remote concerns).
+  - Testing strategy (unit, integration, deferred e2e) layered so each layer can fail independently.
+  - Incremental migration narrative: extract a leaf feature first → publish as remote → flip the host route from local `loadChildren` to `loadRemoteModule` behind a feature flag → repeat per team.
+  - "Use of AI tooling" section per SPEC.
+- Rewrite root `README.md` as a short nutshell that links to `SPEC.md`, `ACCEPTANCE_CRITERIA.md`, `PLAN.md`, and `SUMMARY.md`.
+- Augment `ACCEPTANCE_CRITERIA.md` with clarifications informed by Zephyr Cloud's "Module Federation vs Native ESM" article: a new "Why Native Federation rather than just native ESM + import maps" subsection and an extended trade-offs table covering singleton management, memory & lifecycle, CORS posture, cross-origin DX, and the still-required bundler.
+- `SPEC.md` remains untouched.
 
 ---
 
@@ -202,4 +204,4 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 - [x] Step 5 — Build the prescription feature (UI + state)
 - [x] Step 6 — In-memory HTTP mock
 - [x] Step 7 — Tests
-- [ ] Step 8 — README and architectural notes
+- [x] Step 8 — README, SUMMARY, and architectural notes

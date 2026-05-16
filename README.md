@@ -1,66 +1,39 @@
 # ADG Coding Challenge
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+Angular 21 micro-frontend demo composed at runtime through **[Angular Architects Native Federation](https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/README.md)**: a `shell` host serves global layout + navigation and lazy-loads a `prescription` remote into `/prescriptions`. The remote owns one feature (a server-driven, paginated, sortable, searchable prescriptions table) and ships its own in-memory mock backend so the demo runs without infrastructure. The `sample` project under `projects/` is left untouched as a structural reference; all conventions (standalone components, `OnPush`, signals, `inject()`, feature folder layout) follow it.
 
-## Development server
-
-To start a local development server, run:
+## Quick start
 
 ```bash
-npm i
-npm start
+npm install
+
+# Two separate terminals — start the remote first so its remoteEntry.json is reachable
+npm run start:prescription      # http://localhost:4201  (standalone runnable)
+npm run start:shell             # http://localhost:4200  (composes /prescriptions)
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200/prescriptions` to see the federated view. Open `http://localhost:4201/` to see the same view rendered standalone (useful for isolated remote development).
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Other commands
 
 ```bash
-ng generate component component-name
+npm run build:shell             # production build
+npm run build:prescription      # production build
+npm test                        # 10 spec files / 37 specs (Vitest)
+npm run test:file -- <path>     # focused run
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Architecture in one paragraph
 
-```bash
-ng generate --help
-```
+Two independently buildable Angular applications share **no build-time imports**. Composition happens through Native Federation's runtime: the shell's `federation.manifest.json` references the remote's `remoteEntry.json`, the shell's route definition lazy-loads the remote's exposed `./Routes`, and the remote's feature route brings its own `HttpClient`, mock interceptor, and service via **route-scoped DI** so the shell stays unaware of HTTP and remote-specific types. Both apps still build through `@angular/build:application` (esbuild); Native Federation wraps that builder rather than replacing it.
 
-## Building
+## Where to read more
 
-To build the project run:
+- **[SPEC.md](SPEC.md)** — original challenge brief.
+- **[ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md)** — chosen approach, Native Federation rationale (including the ESM-vs-MF clarification informed by [Zephyr Cloud's "Module Federation vs Native ESM"](https://zephyr-cloud.io/blog/module-federation-vs-native-esm)), and the trade-offs table.
+- **[PLAN.md](PLAN.md)** — the eight-step implementation plan with progress checklist; mirrors the commit history.
+- **[SUMMARY.md](SUMMARY.md)** — full architectural and implementation walkthrough: boundaries between shell and remote, mock backend contract, route-scoped DI rationale, testing layering, incremental migration narrative, known limitations, and use of AI tooling.
 
-```bash
-ng build
-```
+## Use of AI tooling
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng t
-```
-
-That will run all unit tests in the project, but if you need to run a concrete test:
-
-```bash
-make test path/to/single/file.spec.ts
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Implementation was done in pair-programming style with Cursor's Claude Opus 4.7 agent, under explicit per-step approval and human-driven commits. Architectural decisions were proposed by the AI and ratified by the human; recovery from tooling friction (a hung schematic, peer-dep conflicts) was AI-driven; commits and final review were human. Full breakdown in [SUMMARY.md](SUMMARY.md#use-of-ai-tooling-per-spec).

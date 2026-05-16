@@ -26,8 +26,53 @@ For this coding challenge implementation, acceptance includes using **Angular Ar
   - [Native Federation for Angular 17.1+ (Application Builder)](https://www.angulararchitects.io/en/blog/announcing-native-federation-for-angular-17-1/)
   - [Combining Native Federation and Module Federation](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/)
   - [Native Federation improvements (performance, DX, sharing)](https://www.angulararchitects.io/en/blog/native-federation-just-got-better-performance-dx-and-simplicity/)
+  - [Module Federation vs Native ESM (Zephyr Cloud, Néstor López, Oct 2025)](https://zephyr-cloud.io/blog/module-federation-vs-native-esm) — production framing of why a federation **runtime** layer is needed even when the **transport** is plain ESM.
 
 Webpack Module Federation, Rspack MF, Vite federation, single-spa, or other orchestrators may be cited in **architecture notes** as **explicitly out of scope for the delivered demo** unless intentionally proposed as a phased migration.
+
+---
+
+## Why Native Federation is the right choice for this stack
+
+**Native Federation by Angular Architects is the deliberate, primary federation mechanism for this repository.** It is not a lightweight alternative to classic Webpack/Rspack Module Federation, and not an attempt to replicate raw ESM + import maps by hand. It is the federation **runtime** that fits cleanly inside the Angular CLI's `@angular/build:application` (esbuild) pipeline this monorepo already runs on, and it implements the same federation **contract** classic Module Federation popularized: singleton-aware shared dependencies, semver-based version negotiation, runtime composition, and a manifest-driven preload graph.
+
+Two related questions surface when this choice is reviewed; both are answered head-on below.
+
+### Question 1 — Why a federation runtime at all, when browsers already ship ESM and import maps?
+
+Pure ESM + import maps solve the **loading** problem; they do not solve the **management** problem. The framing in [Module Federation vs Native ESM](https://zephyr-cloud.io/blog/module-federation-vs-native-esm) (Zephyr Cloud, Oct 2025) catalogues the gap in production terms — singleton enforcement, semver negotiation, dynamic registration, error recovery, performance-aware chunking. Native Federation keeps those management primitives on top of a browser-native ESM/import-map transport, so the artefacts shipped to users are standards-aligned **and** the runtime behaves like federation rather than like a static script-tag composition.
+
+Capabilities **gained** in this implementation by choosing Native Federation over a DIY native-ESM approach:
+
+- **Singleton enforcement and semver negotiation.** `shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' })` in each `federation.config.js` prevents two `@angular/core` instances on the page when shell and remote pin different patch versions — which would silently break `EnvironmentInjector` propagation, RxJS `Subject` identity across the boundary, and any singleton service relying on root-level instance equality.
+- **Manifest-driven preload graph.** The `remoteEntry.json` and `importmap.json` emitted by the Native Federation builder give the host a typed dependency map up front, so shared chunks can be requested in parallel rather than discovered hop-by-hop through static import waterfalls.
+- **First-class runtime composition.** `loadRemoteModule({ remoteName, exposedModule })` is one async API that hosts wrap with retries, fallbacks, telemetry, and feature flags. Building the equivalent on top of `<script type="importmap">` requires a custom dynamic loader and lifecycle code per host.
+
+### Question 2 — Why Native Federation rather than classic Webpack/Rspack Module Federation?
+
+For an Angular monorepo on the standard CLI builder, Native Federation is the more conservative and lower-risk option, not the lighter one:
+
+- It **rides on the same `@angular/build:application` (esbuild) pipeline** the rest of an Angular workspace already uses (the `sample` project in this repo included). No alternate bundler to maintain, no Nx/CLI executors to swap, no parallel upgrade path against Angular release notes.
+- It implements the **same federation contract** (shared singletons + semver, manifest, dynamic loading) as classic MF — they are different transports of the same idea, not different tiers of capability.
+- The Angular Architects team explicitly designed Native Federation as the federation entry point for Angular 17.1+ greenfield apps ([announcement](https://www.angulararchitects.io/en/blog/announcing-native-federation-for-angular-17-1/)) and ships a documented [combining-Native-and-Module-Federation pattern](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/) for the cases where additional Webpack/Rspack-specific runtime surface is genuinely needed later.
+
+Classic Module Federation is the right call when a team **needs bundler-runtime capabilities not yet exposed by Native Federation** (force-replace remotes for memory recovery, layered singletons across major-version migrations, the broader loader-hook ecosystem) **and** is prepared to take ownership of a non-default bundler stack. None of those constraints apply to this challenge: a single Angular 21 monorepo, single Angular major version, a single remote in the manifest, no long-lived multi-tab admin shell. **Native Federation is the natural fit; reaching for classic MF here would import operational risk for capabilities the demo would not exercise.**
+
+### Capabilities deliberately out of scope (and the documented escape hatch)
+
+Three federation capabilities are out of scope for this demo. The documented [combining-Native-and-Module-Federation pattern](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/) keeps every one of them reachable without rearchitecture if a future product need ever requires them:
+
+- **Programmatic remote unload for long-lived shells.** ESM lacks unload semantics, so memory recovery in multi-remote, multi-tab admin shells uses the broader Module Federation runtime APIs (`registerRemotes(..., { force: true })`, `removeRemote()`). Not relevant for a single-remote demo.
+- **Layered singletons across breaking major versions.** Sharing the same specifier as **different** singletons per layer (for example two Angular major versions side-by-side during a brownfield consolidation) is currently a classic-MF capability. Not relevant for a single-major-version monorepo.
+- **The wider loader-hook ecosystem** (`beforeLoadRemote`, `errorLoadRemote`, `afterResolve`, `beforeInit`). Native Federation exposes the hooks needed for retries, fallbacks, and telemetry; the broader MF hook surface is reachable through the combination pattern when richer orchestration is justified.
+
+### Constraints that apply equally to any federation choice
+
+Inherent to federated micro-frontends regardless of which runtime is used; flagged here so readers do not infer they are Native-Federation-specific:
+
+- **Bundlers are still required in production.** Tree-shaking, code splitting, CSS extraction, TypeScript compilation, source maps, and budget enforcement all live in the bundler. Both shell and remote in this repo build through `@angular/build:application` (esbuild). Switching transports does not remove the bundler.
+- **Cross-origin posture.** Federated chunks are fetched cross-origin (`:4201` → `:4200`). Angular's dev server permits it locally; non-dev environments need explicit CORS headers, caching rules, and SBOM/audit coverage of every origin. Documented in [SUMMARY.md](SUMMARY.md).
+- **Cross-origin DX cost.** When shell and remote ship from different domains, source maps live on different origins, DevTools shows files from multiple origins, and stack traces straddle them. A unified delivery layer (per-team prefixes on a single CDN, or platforms like Zephyr Cloud) materially reduces this debugging tax in many-team production deployments.
 
 ---
 
@@ -89,11 +134,17 @@ Implementation is **accepted** relative to SPEC when federation-specific behavio
 
 Summarized from practitioner discussion—not hard acceptance gates, but good **risk transparency** alongside Native Federation choice:
 
-| Topic                               | Brief note                                                                                                                                                                                                                                                                        |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Native Federation vs classic MF** | Native Federation favors **browser ESM/import-map style** composition; classic Webpack MF uses bundler-centric runtime semantics. Bridging approaches exist ([combining NF and MF](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/)). |
-| **Interop**                         | Libraries that ship only as non-ESM may need wrappers or exclusions in shared boundaries; worthwhile to mention when listing assumptions.                                                                                                                                         |
-| **Dynamic loading / diagnostics**   | ESM loads differ from richer bundler runtimes regarding where failures surface—acceptable to document mitigation (retries, user messaging, observability assumptions).                                                                                                            |
-| **Scale edge cases**                | Very high churn of dynamically loaded modules can stress browsers in ways orthogonal to federation choice document if relevant to your storyline.                                                                                                                                 |
+| Topic                                | Brief note                                                                                                                                                                                                                                                                        |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Native Federation as chosen runtime** | Same federation contract (singleton + semver-aware sharing, manifest, dynamic remote loading) as classic Webpack/Rspack Module Federation, on top of standards-aligned ESM/import-map artefacts and the standard Angular `@angular/build:application` pipeline. Lowest-risk fit for an Angular CLI monorepo.   |
+| **Native Federation vs raw ESM**     | NF keeps the management layer (singleton, semver, manifest, hooks) on top of ESM transport — directly addressing the gaps Zephyr articulates between "loading" and "managing" federated code at scale.                                                                            |
+| **Singleton & version negotiation**  | `shareAll({ singleton: true, strictVersion: true })` prevents duplicate Angular instances. Required for `EnvironmentInjector`, NG Zone, and RxJS subjects to behave correctly across the host/remote boundary.                                                                    |
+| **Memory & lifecycle**               | ESM lacks unload semantics. Long-lived multi-remote shells that need programmatic memory recovery can reach those APIs via the [combining-NF-and-MF pattern](https://www.angulararchitects.io/en/blog/combining-native-federation-and-module-federation/); out of scope for this single-remote demo. |
+| **CORS / origin posture**            | Remote `remoteEntry.json` and shared chunks are fetched cross-origin from the shell. Dev server allows it; production needs explicit CORS headers, caching rules, and SBOM/audit coverage of every origin. Inherent to any federated runtime, not NF-specific.                    |
+| **DX cost across origins**           | Source maps and DevTools see two domains when shell and remote ship from different origins. Acceptable for a small demo; in many-team setups a unified delivery layer materially reduces debugging time. Inherent to any federated runtime, not NF-specific.                     |
+| **Build still required**             | The "no-bundler" pitch of pure ESM does not apply to any federation choice. Both apps still build through `@angular/build:application` (esbuild). Tree-shaking, CSS pipelines, TS, code splitting, source maps, and budgets all live in the bundler.                              |
+| **Interop**                          | Libraries that ship only as non-ESM may need wrappers or exclusions in shared boundaries; worthwhile to mention when listing assumptions.                                                                                                                                         |
+| **Dynamic loading / diagnostics**    | Where remote-load failures surface differs slightly across federation runtimes; document mitigation (retries, user messaging, observability assumptions) regardless of choice.                                                                                                    |
+| **Scale edge cases**                 | Very high churn of dynamically loaded modules can stress browsers in ways orthogonal to federation choice; document if relevant to your storyline.                                                                                                                                |
 
-For productized delivery and rollout, **[Module Federation docs](https://module-federation.io/)** and **Zephyr-style** deployment patterns remain relevant comparison points rather than substitutes for SPEC’s Angular-centric demo scope.
+For productized delivery and rollout, **[Module Federation docs](https://module-federation.io/)** and **Zephyr-style** deployment patterns are relevant **complementary** references — additional reading and migration paths from the Native Federation foundation chosen here, not substitutes for it within SPEC's Angular-centric demo scope.

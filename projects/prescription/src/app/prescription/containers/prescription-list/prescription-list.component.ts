@@ -15,7 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PrescriptionPagerComponent } from '../../components/prescription-pager/prescription-pager.component';
 import { PrescriptionTableComponent } from '../../components/prescription-table/prescription-table.component';
 import type { PrescriptionQuery, PrescriptionSort } from '../../models/prescription-query.model';
-import { PrescriptionService } from '../../services/prescription.service';
+import { PrescriptionService } from '../../services/prescription/prescription.service';
 
 const DEFAULT_SORT: PrescriptionSort = {
   field: 'prescriptionDate',

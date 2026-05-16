@@ -2,9 +2,9 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
-import { PRESCRIPTIONS_SEED } from '../mocks/prescriptions.seed';
+import { PRESCRIPTIONS_SEED } from '../../mocks/prescriptions-seed.mock';
+import type { PrescriptionPage } from '../../models/prescription-page.model';
 import { prescriptionMockInterceptor } from './prescription-mock.interceptor';
-import type { PrescriptionPage } from '../models/prescription-page.model';
 
 const ENDPOINT = '/api/prescriptions';
 

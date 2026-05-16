@@ -1,4 +1,4 @@
-import type { PrescriptionSortField } from '../../models/prescription-query.model';
+import type { PrescriptionSortField } from './prescription-query.model';
 
 export interface ColumnDef {
   field: PrescriptionSortField;

@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
-import { prescriptionMockInterceptor } from './interceptors/prescription-mock.interceptor';
-import { PrescriptionService } from './services/prescription.service';
+import { prescriptionMockInterceptor } from './interceptors/prescription-mock/prescription-mock.interceptor';
+import { PrescriptionService } from './services/prescription/prescription.service';
 
 export const routes: Routes = [
   {

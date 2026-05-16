@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { PrescriptionListComponent } from './prescription-list.component';
-import { PrescriptionService } from '../../services/prescription.service';
+import { PrescriptionService } from '../../services/prescription/prescription.service';
 
 const emptyPageMock = {
   items: [],

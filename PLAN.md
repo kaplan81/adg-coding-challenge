@@ -144,7 +144,7 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 
 ### Step 5 — Build the prescription feature (UI + state)
 
-- Models: `prescription.model.ts`, `prescription-query.model.ts`, `prescription-page.model.ts` under `src/app/prescription/models/`.
+- Models: `prescription.model.ts`, `prescription-query.model.ts`, `prescription-page.model.ts`, `prescription-table-columns.model.ts` under `src/app/prescription/models/`.
 - `PrescriptionService` (`providedIn: 'root'`) with `inject(HttpClient)` and a single `search(query): Observable<PrescriptionPage>`.
 - `PrescriptionListContainer` — owns signals for query state, computed `loading`/`error`, ReactiveForm for search/filters, pagination controls. Uses `toSignal()` over service results.
 - Presentational components:
@@ -154,16 +154,16 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 
 ### Step 6 — In-memory HTTP mock
 
-- `projects/prescription/src/app/prescription/mocks/prescriptions.seed.ts` — ~150 plausible records.
-- `projects/prescription/src/app/prescription/interceptors/prescription-mock.interceptor.ts` — functional `HttpInterceptorFn` matching only `/api/prescriptions`. Performs `q` search, field filters, sort, and page slice with simulated latency. Returns `HttpResponse<PrescriptionPage>`.
+- `projects/prescription/src/app/prescription/mocks/prescriptions-seed.mock.ts` — ~150 plausible records.
+- `projects/prescription/src/app/prescription/interceptors/prescription-mock/prescription-mock.interceptor.ts` — functional `HttpInterceptorFn` matching only `/api/prescriptions`. Performs `q` search, field filters, sort, and page slice with simulated latency. Returns `HttpResponse<PrescriptionPage>`.
 - Register via `provideHttpClient(withInterceptors([prescriptionMockInterceptor]))` inside the **remote's** `app.config.ts` so the mock travels with the remote — the shell stays unaware.
 - Acceptance: opening `/prescriptions` from the shell shows real paging/search/filter behavior backed entirely by in-memory data.
 
 ### Step 7 — Tests
 
 - Unit tests:
-  - `prescription.service.spec.ts` — `HttpTestingController` to assert query-string composition.
-  - `prescription-mock.interceptor.spec.ts` — search, filter, sort, paging, total counts.
+  - `services/prescription/prescription.service.spec.ts` — `HttpTestingController` to assert query-string composition.
+  - `interceptors/prescription-mock/prescription-mock.interceptor.spec.ts` — search, filter, sort, paging, total counts.
   - Snapshot/template test for `PrescriptionTableComponent`.
 - Integration test in the shell: a Vitest test that imports the shell `routes` and asserts the `/prescriptions` route is configured to call `loadRemoteModule` with `remoteName: 'prescription'` (no actual network).
 - Document e2e strategy in README (Playwright per app + a thin shell↔remote contract test) without implementing e2e in this delivery to respect the time-box.

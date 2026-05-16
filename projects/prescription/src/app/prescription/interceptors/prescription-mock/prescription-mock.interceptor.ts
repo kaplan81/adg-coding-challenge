@@ -2,10 +2,10 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import type { Prescription } from '../models/prescription.model';
-import type { PrescriptionPage } from '../models/prescription-page.model';
-import type { PrescriptionSort } from '../models/prescription-query.model';
-import { PRESCRIPTIONS_SEED } from '../mocks/prescriptions.seed';
+import type { Prescription } from '../../models/prescription.model';
+import type { PrescriptionPage } from '../../models/prescription-page.model';
+import type { PrescriptionSort } from '../../models/prescription-query.model';
+import { PRESCRIPTIONS_SEED } from '../../mocks/prescriptions-seed.mock';
 
 const ENDPOINT = '/api/prescriptions';
 const MIN_LATENCY_MS = 150;

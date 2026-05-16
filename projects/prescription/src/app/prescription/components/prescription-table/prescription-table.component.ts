@@ -8,7 +8,7 @@ import type {
   PrescriptionSortField,
 } from '../../models/prescription-query.model';
 
-import { PRESCRIPTION_TABLE_COLUMNS } from './prescription-table-columns.model';
+import { PRESCRIPTION_TABLE_COLUMNS } from '../../models/prescription-table-columns.model';
 
 @Component({
   selector: 'prx-prescription-table',

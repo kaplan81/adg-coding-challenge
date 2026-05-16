@@ -63,9 +63,11 @@ projects/
           containers/prescription-list/
           components/prescription-table/
           components/prescription-pager/
-          services/prescription.service.ts
-          interceptors/prescription-mock.interceptor.ts
-          mocks/prescriptions.seed.ts
+          services/prescription/
+            prescription.service.ts
+          interceptors/prescription-mock/
+            prescription-mock.interceptor.ts
+          mocks/prescriptions-seed.mock.ts
           models/
   @scope/schematics/       (untouched)
 ```
@@ -97,7 +99,7 @@ Strict, runtime-only:
 - **Prescription remote** owns:
   - Its single feature (table + search + paging + sort).
   - Its data layer (`PrescriptionService`, models).
-  - Its mock backend (`prescription-mock.interceptor.ts`, `prescriptions.seed.ts`).
+  - Its mock backend (`interceptors/prescription-mock/prescription-mock.interceptor.ts`, `mocks/prescriptions-seed.mock.ts`).
   - The `HttpClient` instance the feature uses, scoped to its own route subtree.
   - Its own bootstrap and `app.config.ts` so it remains runnable standalone at `:4201`.
 
@@ -219,8 +221,8 @@ Ports are pinned in `angular.json` (`shell.architect.serve-original.options.port
 
 The repository ships **10 spec files / 37 specs** across the two apps. The split is intentional:
 
-- **`PrescriptionService` specs** (`prescription.service.spec.ts`) verify the **HTTP contract** — query string composition, GET method, optional-param omission, response pass-through — against `HttpTestingController`. This is the cross-team interface a real backend would have to honor.
-- **`prescriptionMockInterceptor` specs** (`prescription-mock.interceptor.spec.ts`) verify the **mock backend semantics** — paging (defaults, end-of-data, fallback), search/filter (free-text and exact match), sort (direction toggling, invalid sort tolerated). With a real backend this would belong to the backend team's test suite; here it's the only place those guarantees are pinned, so it acts as a contract test for the mock.
+- **`PrescriptionService` specs** (`services/prescription/prescription.service.spec.ts`) verify the **HTTP contract** — query string composition, GET method, optional-param omission, response pass-through — against `HttpTestingController`. This is the cross-team interface a real backend would have to honor.
+- **`prescriptionMockInterceptor` specs** (`interceptors/prescription-mock/prescription-mock.interceptor.spec.ts`) verify the **mock backend semantics** — paging (defaults, end-of-data, fallback), search/filter (free-text and exact match), sort (direction toggling, invalid sort tolerated). With a real backend this would belong to the backend team's test suite; here it's the only place those guarantees are pinned, so it acts as a contract test for the mock.
 - **`PrescriptionTableComponent` specs** verify the **template contract** — five required column headers in order, row rendering, empty state, `aria-sort` semantics, and the full `null → asc → desc → null` sort cycle.
 - **`PrescriptionPagerComponent` specs** verify the summary text, disabled-button states on first/last page, and `pageChange` / `pageSizeChange` emissions.
 - **`shell` route integration spec** (`projects/shell/src/app/app/app.routes.spec.ts`) verifies the **federation wiring shape** without performing any network call — it inspects the function source of `routes['prescriptions'].loadChildren` to assert it calls `loadRemoteModule` with `remoteName: 'prescription'` and `exposedModule: './Routes'`. Quote-style is matched via a regex so the test stays robust against TypeScript output choices.

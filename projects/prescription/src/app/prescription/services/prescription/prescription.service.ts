@@ -2,8 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import type { PrescriptionPage } from '../models/prescription-page.model';
-import type { PrescriptionQuery } from '../models/prescription-query.model';
+import type { PrescriptionPage } from '../../models/prescription-page.model';
+import type { PrescriptionQuery } from '../../models/prescription-query.model';
 
 const ENDPOINT = '/api/prescriptions';
 

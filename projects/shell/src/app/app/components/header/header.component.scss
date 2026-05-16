@@ -1,0 +1,36 @@
+.shl-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #1f2937;
+  color: #f9fafb;
+  border-bottom: 1px solid #111827;
+}
+
+.shl-header__brand {
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.shl-header__nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.shl-header__nav-link {
+  color: inherit;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.shl-header__nav-link--active {
+  background: rgba(255, 255, 255, 0.16);
+}

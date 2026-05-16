@@ -4,7 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:shell": "ng serve shell",
+    "start:prescription": "ng serve prescription",
     "build": "ng build",
+    "build:shell": "ng build shell",
+    "build:prescription": "ng build prescription",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:file": "ng test --no-watch --include",
@@ -26,6 +30,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular-architects/native-federation": "^21.2.3",
     "@angular-devkit/schematics-cli": "^21.2.2",
     "@angular/build": "^21.2.2",
     "@angular/cli": "^21.2.2",

@@ -195,7 +195,7 @@ The interceptor only matches requests starting with `/api/prescriptions`, simula
 ## Progress checklist
 
 - [x] Step 0 — Author `PLAN.md`
-- [ ] Step 1 — Workspace prep & dependencies
+- [x] Step 1 — Workspace prep & dependencies
 - [ ] Step 2 — Scaffold `shell` host project
 - [ ] Step 3 — Scaffold `prescription` remote project
 - [ ] Step 4 — Wire Native Federation on both apps

@@ -7,7 +7,7 @@ import type { PrescriptionQuery } from '../models/prescription-query.model';
 
 const ENDPOINT = '/api/prescriptions';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class PrescriptionService {
   private readonly http = inject(HttpClient);
 
